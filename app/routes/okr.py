@@ -280,3 +280,4 @@ def delete(id):
     
     flash('OKR deleted successfully!', 'success')
     return redirect(url_for('okr.my_okrs'))
+
