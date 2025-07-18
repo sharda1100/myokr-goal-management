@@ -1,52 +1,230 @@
 {% extends "base.html" %}
 
-{% block title %}Welcome to MyOKR{% endblock %}
+{% block title %}MyOKR - Transform Your Goals into Results{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-lg-8 mx-auto text-center">
-        <h1 class="display-4 fw-bold mb-4">Welcome to MyOKR</h1>
-        <p class="lead mb-4">
-            A modern goal management system to help your organization align, track, and achieve objectives using the OKR framework.
-        </p>
-        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-            <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg px-4 me-md-2">
-                Get Started
-            </a>
-            <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary btn-lg px-4">
-                Sign In
-            </a>
+<!-- Hero Section -->
+<section class="hero-section py-5 mb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+    <div class="container">
+        <div class="row align-items-center min-vh-50">
+            <div class="col-lg-6">
+                <h1 class="display-3 fw-bold mb-4">Transform Your Goals into <span class="text-warning">Results</span></h1>
+                <p class="lead mb-4 fs-5">
+                    Empower your organization with the world's most effective goal-setting framework. 
+                    MyOKR helps teams align, focus, and achieve extraordinary results.
+                </p>
+                <div class="d-grid gap-3 d-md-flex justify-content-md-start">
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-warning btn-lg px-4 me-md-2 fw-bold">
+                        <i class="bi bi-rocket-takeoff me-2"></i>Start Free Trial
+                    </a>
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-lg px-4">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+                    </a>
+                </div>
+                <div class="mt-4">
+                    <small class="text-light opacity-75">
+                        <i class="bi bi-check-circle me-2"></i>No credit card required
+                        <i class="bi bi-check-circle me-2 ms-3"></i>Setup in 2 minutes
+                    </small>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <div class="hero-image">
+                    <i class="bi bi-diagram-3 display-1 text-warning opacity-75"></i>
+                    <div class="mt-3">
+                        <div class="badge bg-warning text-dark fs-6 me-2">Analytics</div>
+                        <div class="badge bg-light text-dark fs-6 me-2">Team Management</div>
+                        <div class="badge bg-warning text-dark fs-6">Goal Tracking</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-</div>
+</section>
 
-<div class="row mt-5">
-    <div class="col-md-4">
-        <div class="card h-100">
-            <div class="card-body text-center">
-                <i class="bi bi-bullseye display-1 text-primary"></i>
-                <h5 class="card-title">Set Clear Objectives</h5>
-                <p class="card-text">Define meaningful goals that align with your organization's vision and strategy.</p>
+<!-- Features Section -->
+<section class="features-section py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-5 fw-bold mb-3">Why Choose MyOKR?</h2>
+                <p class="lead text-muted">Everything you need to implement OKRs successfully in your organization</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm hover-card">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="bi bi-bullseye display-4 text-primary"></i>
+                        </div>
+                        <h5 class="card-title fw-bold">Clear Objectives</h5>
+                        <p class="card-text text-muted">Define meaningful, measurable goals that align with your organization's vision and drive real impact.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm hover-card">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="bi bi-graph-up-arrow display-4 text-success"></i>
+                        </div>
+                        <h5 class="card-title fw-bold">Real-time Analytics</h5>
+                        <p class="card-text text-muted">Monitor progress with beautiful dashboards, charts, and insights that help you make data-driven decisions.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm hover-card">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="bi bi-people-fill display-4 text-info"></i>
+                        </div>
+                        <h5 class="card-title fw-bold">Team Alignment</h5>
+                        <p class="card-text text-muted">Keep everyone focused and aligned with transparent goal sharing and collaborative progress tracking.</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card h-100">
-            <div class="card-body text-center">
-                <i class="bi bi-graph-up display-1 text-success"></i>
-                <h5 class="card-title">Track Progress</h5>
-                <p class="card-text">Monitor key results and progress in real-time with intuitive dashboards.</p>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section py-5 bg-light">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-3">
+                <div class="stat-item mb-4">
+                    <h3 class="display-4 fw-bold text-primary">95%</h3>
+                    <p class="text-muted">Goal Achievement Rate</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-item mb-4">
+                    <h3 class="display-4 fw-bold text-success">50+</h3>
+                    <p class="text-muted">Companies Using MyOKR</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-item mb-4">
+                    <h3 class="display-4 fw-bold text-info">1000+</h3>
+                    <p class="text-muted">OKRs Tracked</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-item mb-4">
+                    <h3 class="display-4 fw-bold text-warning">24/7</h3>
+                    <p class="text-muted">Support Available</p>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card h-100">
-            <div class="card-body text-center">
-                <i class="bi bi-people display-1 text-info"></i>
-                <h5 class="card-title">Team Alignment</h5>
-                <p class="card-text">Keep everyone aligned and focused on what matters most to your success.</p>
+</section>
+
+<!-- How It Works Section -->
+<section class="how-it-works py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-5 fw-bold mb-3">How MyOKR Works</h2>
+                <p class="lead text-muted">Get started with OKRs in three simple steps</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="step-number bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <span class="fw-bold fs-4">1</span>
+                    </div>
+                    <h5 class="fw-bold">Set Objectives</h5>
+                    <p class="text-muted">Define clear, inspiring objectives that align with your company's mission and vision.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="step-number bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <span class="fw-bold fs-4">2</span>
+                    </div>
+                    <h5 class="fw-bold">Track Key Results</h5>
+                    <p class="text-muted">Monitor measurable key results that indicate progress toward your objectives.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="step-number bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <span class="fw-bold fs-4">3</span>
+                    </div>
+                    <h5 class="fw-bold">Achieve Results</h5>
+                    <p class="text-muted">Review progress, celebrate wins, and iterate for continuous improvement.</p>
+                </div>
             </div>
         </div>
     </div>
-</div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section py-5 bg-dark text-white">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-5 fw-bold mb-4">Ready to Transform Your Goals?</h2>
+                <p class="lead mb-4">Join thousands of teams already achieving extraordinary results with MyOKR.</p>
+                <div class="d-grid gap-3 d-md-flex justify-content-md-center">
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-warning btn-lg px-5 fw-bold">
+                        <i class="bi bi-rocket-takeoff me-2"></i>Get Started Now
+                    </a>
+                    <a href="#" class="btn btn-outline-light btn-lg px-5">
+                        <i class="bi bi-play-circle me-2"></i>Watch Demo
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.hero-section {
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+}
+
+.hover-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+}
+
+.feature-icon {
+    transition: transform 0.3s ease;
+}
+
+.hover-card:hover .feature-icon {
+    transform: scale(1.1);
+}
+
+.step-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.stats-section .stat-item h3 {
+    margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+    .hero-section {
+        min-height: 50vh;
+    }
+    
+    .display-3 {
+        font-size: 2.5rem;
+    }
+}
+</style>
 {% endblock %}
