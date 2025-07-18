@@ -35,8 +35,8 @@ class TestingConfig(Config):
 
 class ProductionConfig(Config):
     DEBUG = False
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-        'sqlite:///' + os.path.join(basedir, 'myokr.db')
+    # Use in-memory database for Vercel serverless deployment
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///:memory:'
 
 config = {
     'development': DevelopmentConfig,
