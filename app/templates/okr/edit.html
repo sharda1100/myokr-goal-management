@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block title %}Edit OKR - MyOKR{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Edit OKR</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" novalidate>
+                    {{ form.hidden_tag() }}
+                    
+                    <!-- Objective Section -->
+                    <div class="mb-4">
+                        <h6 class="text-primary mb-3">Objective</h6>
+                        
+                        <div class="mb-3">
+                            {{ form.title.label(class="form-label") }}
+                            {{ form.title(class="form-control" + (" is-invalid" if form.title.errors else "")) }}
+                            {% if form.title.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.title.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.description.label(class="form-label") }}
+                            {{ form.description(class="form-control", rows="3") }}
+                            {% if form.description.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.description.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ form.start_date.label(class="form-label") }}
+                                {{ form.start_date(class="form-control" + (" is-invalid" if form.start_date.errors else "")) }}
+                                {% if form.start_date.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.start_date.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.end_date.label(class="form-label") }}
+                                {{ form.end_date(class="form-control" + (" is-invalid" if form.end_date.errors else "")) }}
+                                {% if form.end_date.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.end_date.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Assignment Section -->
+                    <div class="mb-4">
+                        <h6 class="text-primary mb-3">Assignment</h6>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ form.team_id.label(class="form-label") }}
+                                {{ form.team_id(class="form-select" + (" is-invalid" if form.team_id.errors else "")) }}
+                                {% if form.team_id.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.team_id.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.assigned_to.label(class="form-label") }}
+                                {{ form.assigned_to(class="form-select" + (" is-invalid" if form.assigned_to.errors else "")) }}
+                                {% if form.assigned_to.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.assigned_to.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Key Results Section -->
+                    <div class="mb-4">
+                        <h6 class="text-primary mb-3">Key Results</h6>
+                        
+                        <!-- Key Result 1 -->
+                        <div class="border rounded p-3 mb-3">
+                            <h6 class="text-muted">Key Result 1 (Required)</h6>
+                            <div class="mb-3">
+                                {{ form.key_result_1_title.label(class="form-label") }}
+                                {{ form.key_result_1_title(class="form-control" + (" is-invalid" if form.key_result_1_title.errors else "")) }}
+                                {% if form.key_result_1_title.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.key_result_1_title.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="mb-3">
+                                {{ form.key_result_1_description.label(class="form-label") }}
+                                {{ form.key_result_1_description(class="form-control", rows="2") }}
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {{ form.key_result_1_target.label(class="form-label") }}
+                                    {{ form.key_result_1_target(class="form-control", step="0.01", min="0.01", placeholder="e.g., 100" + (" is-invalid" if form.key_result_1_target.errors else "")) }}
+                                    {% if form.key_result_1_target.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.key_result_1_target.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.key_result_1_unit.label(class="form-label") }}
+                                    {{ form.key_result_1_unit(class="form-control", placeholder="e.g., %, count, $, users") }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Key Result 2 -->
+                        <div class="border rounded p-3 mb-3">
+                            <h6 class="text-muted">Key Result 2 (Required)</h6>
+                            <div class="mb-3">
+                                {{ form.key_result_2_title.label(class="form-label") }}
+                                {{ form.key_result_2_title(class="form-control") }}
+                            </div>
+                            <div class="mb-3">
+                                {{ form.key_result_2_description.label(class="form-label") }}
+                                {{ form.key_result_2_description(class="form-control", rows="2") }}
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {{ form.key_result_2_target.label(class="form-label") }}
+                                    {{ form.key_result_2_target(class="form-control", step="0.01", min="0.01", placeholder="e.g., 100") }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.key_result_2_unit.label(class="form-label") }}
+                                    {{ form.key_result_2_unit(class="form-control", placeholder="e.g., %, count, $, users") }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Key Result 3 -->
+                        <div class="border rounded p-3 mb-3">
+                            <h6 class="text-muted">Key Result 3 (Optional)</h6>
+                            <div class="mb-3">
+                                {{ form.key_result_3_title.label(class="form-label") }}
+                                {{ form.key_result_3_title(class="form-control") }}
+                            </div>
+                            <div class="mb-3">
+                                {{ form.key_result_3_description.label(class="form-label") }}
+                                {{ form.key_result_3_description(class="form-control", rows="2") }}
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {{ form.key_result_3_target.label(class="form-label") }}
+                                    {{ form.key_result_3_target(class="form-control", step="0.01", min="0.01", placeholder="e.g., 100") }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.key_result_3_unit.label(class="form-label") }}
+                                    {{ form.key_result_3_unit(class="form-control", placeholder="e.g., %, count, $, users") }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Submit Buttons -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('okr.view', id=okr.id) }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg"></i> Update OKR
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

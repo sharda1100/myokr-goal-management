@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics Report - MyOKR{% endblock %}
+
+{% block extra_head %}
+<style>
+    @media print {
+        .no-print { display: none !important; }
+        .card { break-inside: avoid; }
+        body { -webkit-print-color-adjust: exact; }
+    }
+    
+    .report-header {
+        text-align: center;
+        padding: 20px 0;
+        border-bottom: 2px solid #007bff;
+        margin-bottom: 30px;
+    }
+    
+    .report-section {
+        margin-bottom: 30px;
+        break-inside: avoid;
+    }
+    
+    .report-card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        background: #f8f9fa;
+    }
+    
+    .metric-box {
+        text-align: center;
+        padding: 15px;
+        background: white;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .metric-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #007bff;
+        margin-bottom: 5px;
+    }
+    
+    .metric-label {
+        font-size: 0.9rem;
+        color: #666;
+    }
+    
+    .achievement-item {
+        padding: 10px;
+        border-left: 4px solid #28a745;
+        margin-bottom: 10px;
+        background: white;
+    }
+    
+    .overdue-item {
+        padding: 10px;
+        border-left: 4px solid #dc3545;
+        margin-bottom: 10px;
+        background: white;
+    }
+    
+    .team-rank {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        margin-bottom: 10px;
+        background: white;
+        border-radius: 5px;
+        border-left: 4px solid #007bff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Print Controls -->
+    <div class="no-print mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="h3">
+                <i class="bi bi-file-earmark-text"></i> Analytics Report
+            </h1>
+            <div>
+                <a href="{{ url_for('dashboard.analytics') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Analytics
+                </a>
+                <button onclick="window.print()" class="btn btn-primary">
+                    <i class="bi bi-printer"></i> Print Report
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Report Header -->
+    <div class="report-header">
+        <h1>OKR Analytics Report</h1>
+        <h2>{{ report.report_period }}</h2>
+        <p class="text-muted">Generated on {{ report.generated_date.strftime('%B %d, %Y') }}</p>
+    </div>
+    
+    <!-- Executive Summary -->
+    <div class="report-section">
+        <h3>Executive Summary</h3>
+        <div class="report-card">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="metric-box">
+                        <div class="metric-number">{{ report.summary.total_okrs }}</div>
+                        <div class="metric-label">Total OKRs</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-box">
+                        <div class="metric-number">{{ report.summary.completed_okrs }}</div>
+                        <div class="metric-label">Completed OKRs</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-box">
+                        <div class="metric-number">{{ report.summary.active_okrs }}</div>
+                        <div class="metric-label">Active OKRs</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-box">
+                        <div class="metric-number">{{ report.summary.completion_rate }}%</div>
+                        <div class="metric-label">Completion Rate</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Achievements -->
+    <div class="report-section">
+        <h3>Recent Achievements</h3>
+        <div class="report-card">
+            {% if report.recent_achievements %}
+                {% for okr in report.recent_achievements %}
+                <div class="achievement-item">
+                    <strong>{{ okr.title }}</strong>
+                    <div class="text-muted small">
+                        {{ okr.team.name }} • Completed {{ okr.updated_at.strftime('%B %d, %Y') }}
+                    </div>
+                    {% if okr.description %}
+                    <div class="small mt-1">{{ okr.description[:100] }}{% if okr.description|length > 100 %}...{% endif %}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-4">
+                    <i class="bi bi-check-circle display-4 text-muted"></i>
+                    <p class="text-muted mt-2">No recent achievements to display</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Overdue OKRs -->
+    {% if report.overdue_okrs %}
+    <div class="report-section">
+        <h3>Overdue OKRs - Attention Required</h3>
+        <div class="report-card">
+            {% for okr in report.overdue_okrs %}
+            <div class="overdue-item">
+                <strong>{{ okr.title }}</strong>
+                <div class="text-muted small">
+                    {{ okr.team.name }} • Due: {{ okr.end_date.strftime('%B %d, %Y') }}
+                    • {{ (report.generated_date - okr.end_date).days }} days overdue
+                </div>
+                <div class="small mt-1">
+                    Progress: {{ okr.progress }}% • Assigned to: {{ okr.assignee.get_full_name() }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Top Performing Teams -->
+    <div class="report-section">
+        <h3>Top Performing Teams</h3>
+        <div class="report-card">
+            {% for team in report.top_teams %}
+            <div class="team-rank">
+                <div>
+                    <strong>{{ loop.index }}. {{ team.name }}</strong>
+                    <div class="small text-muted">
+                        {{ team.completed }} of {{ team.total_okrs }} OKRs completed
+                    </div>
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-success">{{ team.completion_rate }}%</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Recommendations -->
+    <div class="report-section">
+        <h3>Recommendations</h3>
+        <div class="report-card">
+            <ul>
+                {% if report.summary.completion_rate < 50 %}
+                <li><strong>Action Required:</strong> Overall completion rate is below 50%. Consider reviewing OKR goals and providing additional support to teams.</li>
+                {% elif report.summary.completion_rate < 75 %}
+                <li><strong>Improvement Needed:</strong> Completion rate is {{ report.summary.completion_rate }}%. Focus on identifying and addressing blockers.</li>
+                {% else %}
+                <li><strong>Good Progress:</strong> Completion rate of {{ report.summary.completion_rate }}% is strong. Continue current momentum.</li>
+                {% endif %}
+                
+                {% if report.overdue_okrs %}
+                <li><strong>Overdue Items:</strong> {{ report.overdue_okrs|length }} OKRs are overdue. Immediate attention required to get back on track.</li>
+                {% endif %}
+                
+                {% if report.top_teams %}
+                <li><strong>Best Practices:</strong> Learn from top performing team "{{ report.top_teams[0].name }}" with {{ report.top_teams[0].completion_rate }}% completion rate.</li>
+                {% endif %}
+                
+                <li><strong>Regular Reviews:</strong> Schedule weekly check-ins to track progress and address challenges early.</li>
+                <li><strong>Recognition:</strong> Celebrate completed OKRs to maintain team motivation and engagement.</li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="report-section">
+        <div class="text-center text-muted small">
+            <hr>
+            <p>This report was generated by MyOKR Analytics Dashboard on {{ report.generated_date.strftime('%B %d, %Y at %I:%M %p') }}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

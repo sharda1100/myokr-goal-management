@@ -1,0 +1,664 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics Dashboard - MyOKR{% endblock %}
+
+{% block extra_head %}
+<!-- Chart.js for data visualization -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    .chart-container {
+        position: relative;
+        height: 400px;
+        margin-bottom: 20px;
+    }
+    .small-chart {
+        height: 250px;
+    }
+    .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+    .analytics-card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+    .analytics-card .card-header {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        border-radius: 10px 10px 0 0;
+        font-weight: bold;
+        color: #333;
+    }
+    .progress-item {
+        margin-bottom: 15px;
+    }
+    .progress-item:last-child {
+        margin-bottom: 0;
+    }
+    .team-rank {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        margin-bottom: 10px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border-left: 4px solid #007bff;
+    }
+    .team-rank.top-performer {
+        border-left-color: #28a745;
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    }
+    .team-rank.second-performer {
+        border-left-color: #ffc107;
+        background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    }
+    .team-rank.third-performer {
+        border-left-color: #fd7e14;
+        background: linear-gradient(135deg, #ffecd1 0%, #ffdd94 100%);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h2">
+                <i class="bi bi-graph-up"></i> Analytics Dashboard
+            </h1>                <div class="d-flex align-items-center gap-2">
+                    <button id="refreshData" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-arrow-clockwise"></i> Refresh Data
+                    </button>
+                    <a href="{{ url_for('dashboard.export_analytics') }}" class="btn btn-outline-success btn-sm">
+                        <i class="bi bi-download"></i> Export Data
+                    </a>
+                    <a href="{{ url_for('dashboard.analytics_report') }}" class="btn btn-outline-info btn-sm">
+                        <i class="bi bi-file-earmark-text"></i> Generate Report
+                    </a>
+                    <div class="text-muted">
+                        <i class="bi bi-calendar"></i> {{ current_date.strftime('%B %d, %Y') }}
+                    </div>
+                </div>
+        </div>
+    </div>
+</div>
+
+<!-- Overview Statistics -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-number">{{ analytics.overview.total_okrs }}</div>
+            <div class="stat-label">Total OKRs</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+            <div class="stat-number">{{ analytics.overview.completion_rate }}%</div>
+            <div class="stat-label">Completion Rate</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="stat-number">{{ analytics.overview.average_progress }}%</div>
+            <div class="stat-label">Average Progress</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <div class="stat-number">{{ analytics.overview.overdue_okrs }}</div>
+            <div class="stat-label">Overdue OKRs</div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row 1 -->
+<div class="row mb-4">
+    <!-- Status Distribution -->
+    <div class="col-lg-6">
+        <div class="analytics-card card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-pie-chart"></i> OKR Status Distribution
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Priority Distribution -->
+    <div class="col-lg-6">
+        <div class="analytics-card card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-exclamation-triangle"></i> Priority Distribution
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="priorityChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row 2 -->
+<div class="row mb-4">
+    <!-- Progress Distribution -->
+    <div class="col-lg-8">
+        <div class="analytics-card card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-bar-chart"></i> Progress Distribution
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="progressChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Stats -->
+    <div class="col-lg-4">
+        <div class="analytics-card card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-lightning"></i> Quick Stats
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="progress-item">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Active OKRs</span>
+                        <span class="badge bg-primary">{{ analytics.overview.active_okrs }}</span>
+                    </div>
+                </div>
+                <div class="progress-item">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Completed OKRs</span>
+                        <span class="badge bg-success">{{ analytics.overview.completed_okrs }}</span>
+                    </div>
+                </div>
+                <div class="progress-item">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Paused OKRs</span>
+                        <span class="badge bg-warning">{{ analytics.overview.paused_okrs }}</span>
+                    </div>
+                </div>
+                <div class="progress-item">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Cancelled OKRs</span>
+                        <span class="badge bg-danger">{{ analytics.overview.cancelled_okrs }}</span>
+                    </div>
+                </div>
+                <div class="progress-item">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Archived OKRs</span>
+                        <span class="badge bg-secondary">{{ analytics.overview.archived_okrs }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Timeline Chart -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="analytics-card card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-graph-up-arrow"></i> OKR Creation Timeline (Last 6 Months)
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="timelineChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Team Performance -->
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="analytics-card card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-people"></i> Team Performance
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="teamChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Team Rankings -->
+    <div class="col-lg-4">
+        <div class="analytics-card card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-trophy"></i> Team Rankings
+                </h5>
+            </div>
+            <div class="card-body">
+                {% for team in analytics.team_performance[:5] %}
+                <div class="team-rank 
+                    {% if loop.index == 1 %}top-performer
+                    {% elif loop.index == 2 %}second-performer
+                    {% elif loop.index == 3 %}third-performer
+                    {% endif %}">
+                    <div class="flex-grow-1">
+                        <div class="fw-bold">
+                            #{{ loop.index }} {{ team.name }}
+                            {% if loop.index == 1 %}
+                                <i class="bi bi-trophy text-warning"></i>
+                            {% elif loop.index == 2 %}
+                                <i class="bi bi-award text-secondary"></i>
+                            {% elif loop.index == 3 %}
+                                <i class="bi bi-award text-warning"></i>
+                            {% endif %}
+                        </div>
+                        <small class="text-muted">
+                            {{ team.completion_rate }}% completion rate
+                        </small>
+                    </div>
+                    <div class="text-end">
+                        <div class="fw-bold">{{ team.completed }}/{{ team.total_okrs }}</div>
+                        <small class="text-muted">OKRs</small>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- User Performance (Admin Only) -->
+{% if current_user.is_admin() and analytics.user_performance %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="analytics-card card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-person-check"></i> User Performance (Admin View)
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="userChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Recent Activity -->
+<div class="row">
+    <div class="col-lg-6">
+        <div class="analytics-card card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-check-circle"></i> Recently Completed OKRs
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if analytics.recent_activity.completed %}
+                <div class="list-group list-group-flush">
+                    {% for okr in analytics.recent_activity.completed %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="mb-1">
+                                    <a href="{{ url_for('okr.view', id=okr.id) }}" class="text-decoration-none">
+                                        {{ okr.title }}
+                                    </a>
+                                </h6>
+                                <small class="text-muted">{{ okr.team.name }}</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-success">100%</span>
+                                <br>
+                                <small class="text-muted">{{ okr.updated_at.strftime('%b %d') }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="bi bi-check-circle display-4 text-muted"></i>
+                    <p class="text-muted mt-2">No completed OKRs yet</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6">
+        <div class="analytics-card card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-plus-circle"></i> Recently Created OKRs
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if analytics.recent_activity.created %}
+                <div class="list-group list-group-flush">
+                    {% for okr in analytics.recent_activity.created %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="mb-1">
+                                    <a href="{{ url_for('okr.view', id=okr.id) }}" class="text-decoration-none">
+                                        {{ okr.title }}
+                                    </a>
+                                </h6>
+                                <small class="text-muted">{{ okr.team.name }}</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-{{ okr.get_status_color() }}">{{ okr.status|title }}</span>
+                                <br>
+                                <small class="text-muted">{{ okr.created_at.strftime('%b %d') }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="bi bi-plus-circle display-4 text-muted"></i>
+                    <p class="text-muted mt-2">No recent OKRs</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Back to Dashboard Button -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+            <a href="{{ url_for('dashboard.index') }}" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+            <a href="{{ url_for('okr.create') }}" class="btn btn-primary">
+                <i class="bi bi-plus-lg"></i> Create New OKR
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+// Chart.js configuration and data
+document.addEventListener('DOMContentLoaded', function() {
+    // Common chart options
+    const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'top',
+            }
+        }
+    };
+
+    // Status Distribution Chart (Doughnut)
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Active', 'Completed', 'Paused', 'Cancelled', 'Archived'],
+            datasets: [{
+                data: [
+                    {{ analytics.status_distribution.active }},
+                    {{ analytics.status_distribution.completed }},
+                    {{ analytics.status_distribution.paused }},
+                    {{ analytics.status_distribution.cancelled }},
+                    {{ analytics.status_distribution.archived }}
+                ],
+                backgroundColor: [
+                    '#007bff',
+                    '#28a745',
+                    '#ffc107',
+                    '#dc3545',
+                    '#6c757d'
+                ]
+            }]
+        },
+        options: {
+            ...commonOptions,
+            plugins: {
+                ...commonOptions.plugins,
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((context.parsed / total) * 100).toFixed(1);
+                            return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Priority Distribution Chart (Pie)
+    const priorityCtx = document.getElementById('priorityChart').getContext('2d');
+    new Chart(priorityCtx, {
+        type: 'pie',
+        data: {
+            labels: ['High Priority', 'Medium Priority', 'Low Priority'],
+            datasets: [{
+                data: [
+                    {{ analytics.priority_distribution.high }},
+                    {{ analytics.priority_distribution.medium }},
+                    {{ analytics.priority_distribution.low }}
+                ],
+                backgroundColor: [
+                    '#dc3545',
+                    '#ffc107',
+                    '#17a2b8'
+                ]
+            }]
+        },
+        options: commonOptions
+    });
+
+    // Progress Distribution Chart (Bar)
+    const progressCtx = document.getElementById('progressChart').getContext('2d');
+    new Chart(progressCtx, {
+        type: 'bar',
+        data: {
+            labels: ['0-25%', '26-50%', '51-75%', '76-99%', '100%'],
+            datasets: [{
+                label: 'Number of OKRs',
+                data: [
+                    {{ analytics.progress_distribution['0-25%'] }},
+                    {{ analytics.progress_distribution['26-50%'] }},
+                    {{ analytics.progress_distribution['51-75%'] }},
+                    {{ analytics.progress_distribution['76-99%'] }},
+                    {{ analytics.progress_distribution['100%'] }}
+                ],
+                backgroundColor: [
+                    '#dc3545',
+                    '#fd7e14',
+                    '#ffc107',
+                    '#17a2b8',
+                    '#28a745'
+                ]
+            }]
+        },
+        options: {
+            ...commonOptions,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+
+    // Timeline Chart (Line)
+    const timelineCtx = document.getElementById('timelineChart').getContext('2d');
+    new Chart(timelineCtx, {
+        type: 'line',
+        data: {
+            labels: [
+                {% for item in analytics.timeline %}
+                    '{{ item.month }}',
+                {% endfor %}
+            ],
+            datasets: [{
+                label: 'OKRs Created',
+                data: [
+                    {% for item in analytics.timeline %}
+                        {{ item.count }},
+                    {% endfor %}
+                ],
+                borderColor: '#007bff',
+                backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            ...commonOptions,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+
+    // Team Performance Chart (Horizontal Bar)
+    const teamCtx = document.getElementById('teamChart').getContext('2d');
+    new Chart(teamCtx, {
+        type: 'bar',
+        data: {
+            labels: [
+                {% for team in analytics.team_performance %}
+                    '{{ team.name }}',
+                {% endfor %}
+            ],
+            datasets: [{
+                label: 'Completion Rate (%)',
+                data: [
+                    {% for team in analytics.team_performance %}
+                        {{ team.completion_rate }},
+                    {% endfor %}
+                ],
+                backgroundColor: '#28a745'
+            }, {
+                label: 'Average Progress (%)',
+                data: [
+                    {% for team in analytics.team_performance %}
+                        {{ team.avg_progress }},
+                    {% endfor %}
+                ],
+                backgroundColor: '#007bff'
+            }]
+        },
+        options: {
+            ...commonOptions,
+            indexAxis: 'y',
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+
+    {% if current_user.is_admin() and analytics.user_performance %}
+    // User Performance Chart (Admin Only)
+    const userCtx = document.getElementById('userChart').getContext('2d');
+    new Chart(userCtx, {
+        type: 'bar',
+        data: {
+            labels: [
+                {% for user in analytics.user_performance %}
+                    '{{ user.name }}',
+                {% endfor %}
+            ],
+            datasets: [{
+                label: 'Completion Rate (%)',
+                data: [
+                    {% for user in analytics.user_performance %}
+                        {{ user.completion_rate }},
+                    {% endfor %}
+                ],
+                backgroundColor: '#28a745'
+            }, {
+                label: 'Average Progress (%)',
+                data: [
+                    {% for user in analytics.user_performance %}
+                        {{ user.avg_progress }},
+                    {% endfor %}
+                ],
+                backgroundColor: '#007bff'
+            }]
+        },
+        options: {
+            ...commonOptions,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+    {% endif %}
+
+    // Add refresh functionality
+    document.getElementById('refreshData').addEventListener('click', function() {
+        const button = this;
+        const originalText = button.innerHTML;
+        
+        // Show loading state
+        button.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Refreshing...';
+        button.disabled = true;
+        
+        // Simulate refresh (in a real app, you'd make an AJAX call)
+        setTimeout(() => {
+            location.reload();
+        }, 1000);
+    });
+});
+</script>
+{% endblock %}

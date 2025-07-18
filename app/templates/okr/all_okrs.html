@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}All OKRs - MyOKR{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>All OKRs (Admin View)</h2>
+            <a href="{{ url_for('okr.create') }}" class="btn btn-primary">
+                <i class="bi bi-plus-lg"></i> Create New OKR
+            </a>
+        </div>
+        
+        {% if okrs %}
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Team</th>
+                                <th>Assigned To</th>
+                                <th>Status</th>
+                                <th>Progress</th>
+                                <th>End Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for okr in okrs %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('okr.view', id=okr.id) }}" class="text-decoration-none">
+                                        {{ okr.title }}
+                                    </a>
+                                </td>
+                                <td>{{ okr.team.name }}</td>
+                                <td>{{ okr.assignee.get_full_name() }}</td>
+                                <td>
+                                    <span class="badge bg-{{ okr.get_status_color() }}">
+                                        {{ okr.status|title }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="progress" style="width: 80px; height: 20px;">
+                                        <div class="progress-bar 
+                                            {% if okr.progress >= 100 %}bg-success
+                                            {% elif okr.progress >= 75 %}bg-info
+                                            {% elif okr.progress >= 50 %}bg-warning
+                                            {% else %}bg-danger
+                                            {% endif %}" 
+                                            role="progressbar" 
+                                            style="width: {{ okr.progress }}%">
+                                            {{ "%.0f"|format(okr.progress) }}%
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if okr.is_overdue() %}
+                                        <span class="text-danger">
+                                            <i class="bi bi-exclamation-triangle"></i> 
+                                            {{ okr.end_date.strftime('%b %d, %Y') }}
+                                        </span>
+                                    {% else %}
+                                        {{ okr.end_date.strftime('%b %d, %Y') }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('okr.view', id=okr.id) }}" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('okr.edit', id=okr.id) }}" 
+                                           class="btn btn-sm btn-outline-warning">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-list-ul display-1 text-muted"></i>
+                <h5 class="mt-3">No OKRs Found</h5>
+                <p class="text-muted">No OKRs have been created yet.</p>
+                <a href="{{ url_for('okr.create') }}" class="btn btn-primary">
+                    <i class="bi bi-plus-lg"></i> Create First OKR
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

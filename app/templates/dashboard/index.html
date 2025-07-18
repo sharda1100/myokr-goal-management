@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - MyOKR{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h2">Welcome back, {{ current_user.get_full_name() }}!</h1>
+            <div>
+                <a href="{{ url_for('okr.create') }}" class="btn btn-primary">
+                    <i class="bi bi-plus-lg"></i> Create OKR
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h5 class="card-title">My OKRs</h5>
+                        <h3 class="mb-0">{{ stats.total_okrs }}</h3>
+                    </div>
+                    <div class="ms-3">
+                        <i class="bi bi-bullseye display-4"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-transparent border-0">
+                <a href="{{ url_for('okr.my_okrs') }}" class="text-white text-decoration-none">
+                    <small>View all <i class="bi bi-arrow-right"></i></small>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h5 class="card-title">Completed</h5>
+                        <h3 class="mb-0">{{ stats.completed_okrs }}</h3>
+                    </div>
+                    <div class="ms-3">
+                        <i class="bi bi-check-circle display-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h5 class="card-title">In Progress</h5>
+                        <h3 class="mb-0">{{ stats.active_okrs }}</h3>
+                    </div>
+                    <div class="ms-3">
+                        <i class="bi bi-clock display-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h5 class="card-title">Team OKRs</h5>
+                        <h3 class="mb-0">{{ stats.team_okrs_count }}</h3>
+                    </div>
+                    <div class="ms-3">
+                        <i class="bi bi-people display-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent OKRs -->
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Recent OKRs</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_okrs %}
+                <div class="list-group list-group-flush">
+                    {% for okr in recent_okrs %}
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">
+                                <a href="{{ url_for('okr.view', id=okr.id) }}" class="text-decoration-none">
+                                    {{ okr.title }}
+                                </a>
+                            </h6>
+                            <small class="text-muted">{{ okr.created_at.strftime('%b %d') }}</small>
+                        </div>
+                        <p class="mb-1">{{ okr.description[:100] }}{% if okr.description|length > 100 %}...{% endif %}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">{{ okr.team.name }}</small>
+                            <div class="progress" style="width: 100px; height: 8px;">
+                                <div class="progress-bar bg-{% if okr.progress >= 100 %}success{% elif okr.progress >= 75 %}info{% elif okr.progress >= 50 %}warning{% else %}danger{% endif %}" 
+                                     role="progressbar" 
+                                     style="width: {{ okr.progress }}%">
+                                </div>
+                            </div>
+                            <small class="text-muted">{{ "%.0f"|format(okr.progress) }}%</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('okr.my_okrs') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-list-ul"></i> View All My OKRs
+                    </a>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-bullseye display-1 text-muted"></i>
+                    <h5 class="mt-3">No OKRs yet</h5>
+                    <p class="text-muted">Create your first OKR to get started!</p>
+                    <a href="{{ url_for('okr.create') }}" class="btn btn-primary">
+                        <i class="bi bi-plus-lg"></i> Create First OKR
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('okr.my_okrs') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-list-ul"></i> View My OKRs
+                    </a>
+                    <a href="{{ url_for('okr.team_okrs') }}" class="btn btn-outline-info">
+                        <i class="bi bi-people"></i> Team OKRs
+                    </a>
+                    <a href="{{ url_for('dashboard.analytics') }}" class="btn btn-outline-success">
+                        <i class="bi bi-graph-up"></i> Analytics Dashboard
+                    </a>
+                    {% if current_user.is_admin() %}
+                    <a href="{{ url_for('admin.users') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-gear"></i> Admin Panel
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="card-title mb-0">User Info</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Role:</strong> {{ current_user.role|title }}</p>
+                <p><strong>Email:</strong> {{ current_user.email }}</p>
+                <p><strong>Member since:</strong> {{ current_user.created_at.strftime('%B %Y') }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

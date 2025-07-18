@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome to MyOKR{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto text-center">
+        <h1 class="display-4 fw-bold mb-4">Welcome to MyOKR</h1>
+        <p class="lead mb-4">
+            A modern goal management system to help your organization align, track, and achieve objectives using the OKR framework.
+        </p>
+        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg px-4 me-md-2">
+                Get Started
+            </a>
+            <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary btn-lg px-4">
+                Sign In
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-bullseye display-1 text-primary"></i>
+                <h5 class="card-title">Set Clear Objectives</h5>
+                <p class="card-text">Define meaningful goals that align with your organization's vision and strategy.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-graph-up display-1 text-success"></i>
+                <h5 class="card-title">Track Progress</h5>
+                <p class="card-text">Monitor key results and progress in real-time with intuitive dashboards.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-people display-1 text-info"></i>
+                <h5 class="card-title">Team Alignment</h5>
+                <p class="card-text">Keep everyone aligned and focused on what matters most to your success.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

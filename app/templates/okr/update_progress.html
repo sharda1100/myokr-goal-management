@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Update Progress - {{ key_result.title }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="bi bi-graph-up-arrow"></i> Update Progress
+                </h4>
+            </div>
+            <div class="card-body">
+                <!-- OKR Context -->
+                <div class="mb-4">
+                    <h5 class="text-primary">{{ okr.title }}</h5>
+                    <p class="text-muted">{{ okr.description or 'No description' }}</p>
+                </div>
+
+                <!-- Key Result Details -->
+                <div class="border rounded p-3 mb-4">
+                    <h6 class="mb-2">{{ key_result.title }}</h6>
+                    {% if key_result.description %}
+                    <p class="text-muted small mb-2">{{ key_result.description }}</p>
+                    {% endif %}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Target:</strong> {{ key_result.target_value }} 
+                            {% if key_result.unit %}{{ key_result.unit }}{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Current Progress:</strong> 
+                            <span class="badge bg-primary">{{ "%.1f"|format(key_result.progress) }}%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Update Form -->
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ form.current_value.label(class="form-label") }}
+                        <div class="input-group">
+                            {{ form.current_value(class="form-control", step="0.01", min="0") }}
+                            {% if key_result.unit %}
+                            <span class="input-group-text">{{ key_result.unit }}</span>
+                            {% endif %}
+                        </div>
+                        {% if form.current_value.errors %}
+                            <div class="text-danger">
+                                {% for error in form.current_value.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">
+                            Current value: {{ key_result.current_value }} / Target: {{ key_result.target_value }}
+                        </div>
+                    </div>
+                    
+                    <!-- Progress Preview -->
+                    <div class="mb-4">
+                        <label class="form-label">Current Progress</label>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar" role="progressbar" style="width: {{ key_result.progress }}%">
+                                {{ "%.1f"|format(key_result.progress) }}%
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('okr.view', id=okr.id) }}" class="btn btn-outline-secondary">
+                            Cancel
+                        </a>
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Live progress calculation
+document.addEventListener('DOMContentLoaded', function() {
+    const currentValueInput = document.querySelector('#current_value');
+    const targetValue = {{ key_result.target_value }};
+    const progressBar = document.querySelector('.progress-bar');
+    
+    if (currentValueInput && progressBar) {
+        currentValueInput.addEventListener('input', function() {
+            const currentValue = parseFloat(this.value) || 0;
+            const progress = Math.min((currentValue / targetValue) * 100, 100);
+            
+            progressBar.style.width = progress + '%';
+            progressBar.textContent = progress.toFixed(1) + '%';
+            
+            // Update color based on progress
+            progressBar.className = 'progress-bar';
+            if (progress >= 100) {
+                progressBar.classList.add('bg-success');
+            } else if (progress >= 75) {
+                progressBar.classList.add('bg-info');
+            } else if (progress >= 50) {
+                progressBar.classList.add('bg-warning');
+            } else {
+                progressBar.classList.add('bg-danger');
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
